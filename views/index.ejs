@@ -1,0 +1,994 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Nopallse.tech | Portofolio</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'class',
+			theme: {
+				extend: {
+					colors: {
+						primary: { "50": "#eff6ff", "100": "#dbeafe", "200": "#bfdbfe", "300": "#93c5fd", "400": "#60a5fa", "500": "#3b82f6", "600": "#2563eb", "700": "#1d4ed8", "800": "#1e40af", "900": "#1e3a8a", "950": "#172554" }
+					}
+				},
+				fontFamily: {
+					'sans': ['Inter', 'sans-serif'],
+				}
+			}
+		}
+	</script>
+	<style>
+		.project-card {
+			will-change: transform, opacity;
+		}
+
+		.project-card.hidden-card {
+			opacity: 0;
+			transform: scale(0);
+			position: absolute;
+			pointer-events: none;
+		}
+
+		.project-card.visible-card {
+			opacity: 1;
+			transform: scale(1);
+			transition: transform 0.5s ease, opacity 0.5s ease;
+		}
+
+		.hs-overlay {
+			transition: opacity 0.5s ease-out, visibility 0.3s ease-out;
+		}
+
+		.hs-overlay.hidden {
+			opacity: 0;
+			visibility: hidden;
+		}
+
+		.hs-overlay.flex {
+			opacity: 1;
+			visibility: visible;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: rgba(0, 0, 0, 0.5);
+			/* overlay background */
+		}
+
+		.hs-overlay-open\:opacity-100 {
+			opacity: 1;
+		}
+
+		.opacity-0 {
+			opacity: 0;
+		}
+
+		.hs-overlay-open\:duration-500 {
+			transition-duration: 500ms;
+		}
+
+		.modal {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0, 0, 0, 0.7);
+			display: none;
+			/* Start hidden by default */
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+			/* Higher z-index */
+		}
+
+		.modal.active {
+			display: flex;
+		}
+
+		.modal-content {
+			background-color: white;
+			border-radius: 0.75rem;
+			width: 100%;
+			max-width: 64rem;
+			margin: 1rem;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			transform: scale(0.95);
+			opacity: 0;
+			transition: transform 0.3s ease, opacity 0.3s ease;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+
+		.modal.active .modal-content {
+			transform: scale(1);
+			opacity: 1;
+		}
+
+		/* Dark mode */
+		.dark .modal-content {
+			background-color: #1e293b;
+			border-color: #334155;
+		}
+
+		/* Carousel styling */
+		.carousel {
+			position: relative;
+			overflow: hidden;
+			border-radius: 0.5rem;
+		}
+
+		.carousel-container {
+			display: flex;
+			transition: transform 0.3s ease;
+		}
+
+		.carousel-slide {
+			flex: 0 0 100%;
+			min-width: 100%;
+		}
+
+		.carousel-slide img {
+			width: 100%;
+			height: auto;
+			aspect-ratio: 1920/929;
+			object-fit: cover;
+		}
+
+		.carousel-prev,
+		.carousel-next {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 2.5rem;
+			height: 2.5rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: rgba(255, 255, 255, 0.8);
+			color: #1f2937;
+			border-radius: 50%;
+			cursor: pointer;
+			z-index: 10;
+		}
+
+		.carousel-prev {
+			left: 0.5rem;
+			border-top-right-radius: 9999px;
+			border-bottom-right-radius: 9999px;
+		}
+
+		.carousel-next {
+			right: 0.5rem;
+			border-top-left-radius: 9999px;
+			border-bottom-left-radius: 9999px;
+		}
+
+		.dark .carousel-prev,
+		.dark .carousel-next {
+			background-color: rgba(30, 41, 59, 0.8);
+			color: white;
+		}
+
+		.carousel-indicators {
+			position: absolute;
+			bottom: 0.75rem;
+			left: 0;
+			right: 0;
+			display: flex;
+			justify-content: center;
+			gap: 0.5rem;
+		}
+
+		.carousel-indicator {
+			width: 0.5rem;
+			height: 0.5rem;
+			border-radius: 50%;
+			background-color: rgba(255, 255, 255, 0.4);
+			cursor: pointer;
+		}
+
+		.carousel-indicator.active {
+			background-color: white;
+		}
+	</style>
+	<!-- Font -->
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray-50 dark:bg-slate-900">
+	<!-- Navbar -->
+	<header class="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-white border-b border-gray-200 text-sm py-3 sm:py-0 dark:bg-slate-900 dark:border-gray-700 sticky top-0"></header>
+		<nav class="relative max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8" aria-label="Global">
+			<div class="flex items-center justify-between"></div>
+				<a class="flex-none text-xl font-semibold dark:text-white" href="#" aria-label="Brand">nopallse.tech</a>
+				<div class="sm:hidden">
+					<button type="button" 
+						class="hs-collapse-toggle size-9 flex justify-center items-center text-sm font-semibold rounded-lg border border-gray-200 text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+						data-hs-collapse="#navbar-collapse-with-animation" 
+						aria-controls="navbar-collapse-with-animation" 
+						aria-label="Toggle navigation">
+						<svg class="hs-collapse-open:hidden size-4" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"></svg>
+							<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+						</svg>
+						<svg class="hs-collapse-open:block hidden size-4" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+							<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+						</svg>
+					</button>
+				</div>
+			</div>
+			<div id="navbar-collapse-with-animation" class="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block"></div>
+				<div class="flex flex-col gap-y-4 gap-x-0 mt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-y-0 sm:gap-x-7 sm:mt-0 sm:ps-7">
+					<a class="font-medium text-primary-600 sm:py-6 dark:text-primary-500" href="#home" aria-current="page">Home</a>
+					<a class="font-medium text-gray-500 hover:text-gray-400 sm:py-6 dark:text-gray-400 dark:hover:text-gray-500" href="#about">About</a>
+					<a class="font-medium text-gray-500 hover:text-gray-400 sm:py-6 dark:text-gray-400 dark:hover:text-gray-500" href="#projects">Projects</a>
+					<a class="font-medium text-gray-500 hover:text-gray-400 sm:py-6 dark:text-gray-400 dark:hover:text-gray-500" href="#contact">Contact</a>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<!-- Hero Section -->
+	<section id="home" class="bg-gradient-to-b from-violet-600/[.15] via-transparent dark:from-violet-950/[.15]">
+		<div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-8">
+			<div class="max-w-3xl text-center mx-auto">
+				<h1 class="block font-medium text-gray-800 text-4xl md:text-5xl lg:text-6xl dark:text-gray-200">
+					Hello, I'm <span class="text-primary-600 dark:text-primary-500">Naufal</span>
+				</h1>
+			</div>
+
+			<div class="max-w-3xl text-center mx-auto">
+				<p class="text-lg text-gray-600 dark:text-gray-400">Web & Mobile Developer</p>
+			</div>
+
+			<div class="text-center">
+				<a class="inline-flex items-center gap-x-2 bg-primary-600 border border-transparent text-white text-sm font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white py-3 px-6 dark:focus:ring-offset-gray-800"
+					href="#contact">
+					Get in touch
+					<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+						viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round">
+						<path d="m9 18 6-6-6-6" />
+					</svg>
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- About Section -->
+	<section id="about" class="py-16 bg-white dark:bg-slate-800">
+		<div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
+				<div class="relative">
+					<img class="w-full max-w-md rounded-2xl shadow-lg mx-auto" src="/image/naufal.png"
+						alt="Profile Image">
+				</div>
+				<div>
+					<h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">About Me</h2>
+					<p class="text-gray-600 dark:text-gray-300 mb-6">
+						Hi, I'm a passionate mobile and fullstack developer with expertise in creating high-quality applications. 
+						I specialize in building responsive, user-friendly mobile and web interfaces, as well as robust backend systems.
+						As a distinction graduate from Bangkit Academy, I have honed my skills through real-world projects and industry collaborations.
+					</p>
+					<p class="text-gray-600 dark:text-gray-300 mb-6">
+						I'm constantly learning new technologies and methodologies to stay at the forefront of mobile and web development. 
+						My goal is to build innovative solutions that enhance user experiences and solve real-world problems.
+					</p>
+					
+					<div class="mt-8">
+						<!-- <a class="inline-flex items-center gap-x-2 bg-primary-600 border border-transparent text-white text-sm font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white py-3 px-6 dark:focus:ring-offset-gray-800"
+							href="#" download>
+							Download CV
+							<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+								viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+								<polyline points="7 10 12 15 17 10" />
+								<line x1="12" x2="12" y1="15" y2="3" />
+							</svg>
+						</a> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Skills Section -->
+	<section id="skills" class="py-16 bg-gray-50 dark:bg-slate-900">
+		<div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
+				<h2 class="text-3xl font-bold text-gray-800 dark:text-white">My Skills</h2>
+				<p class="mt-4 text-gray-600 dark:text-gray-300">Key technologies and tools I work with</p>
+			</div>
+
+			<div class="space-y-10">
+				<!-- Frontend Skills -->
+				<div>
+					<h3 class="text-xl font-semibold text-center text-gray-800 dark:text-white mb-6">Frontend</h3>
+					<div class="flex justify-center">
+						<img src="https://skillicons.dev/icons?i=js,ts,react,html,css,tailwind" alt="Frontend Skills" />
+					</div>
+				</div>
+
+				<!-- Backend Skills -->
+				<div>
+					<h3 class="text-xl font-semibold text-center text-gray-800 dark:text-white mb-6">Backend</h3>
+					<div class="flex justify-center">
+						<img src="https://skillicons.dev/icons?i=nodejs,express,mysql,postgres,mongodb" alt="Backend Skills" />
+					</div>
+				</div>
+
+				<!-- Mobile Development -->
+				<div>
+					<h3 class="text-xl font-semibold text-center text-gray-800 dark:text-white mb-6">Mobile Development</h3>
+					<div class="flex justify-center">
+						<img src="https://skillicons.dev/icons?i=kotlin,flutter,dart,firebase,androidstudio" alt="Mobile Development Skills" />
+					</div>
+				</div>
+
+				<!-- Tools & Others -->
+				<div>
+					<h3 class="text-xl font-semibold text-center text-gray-800 dark:text-white mb-6">Tools & Others</h3>
+					<div class="flex justify-center">
+						<img src="https://skillicons.dev/icons?i=git,github,docker,vscode,postman,figma" alt="Development Tools" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Projects Section -->
+	<section id="projects" class="py-16 bg-white dark:bg-slate-800">
+		<div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
+				<h2 class="text-3xl font-bold text-gray-800 dark:text-white">My Projects</h2>
+				<p class="mt-4 text-gray-600 dark:text-gray-300">Check out some of my recent work</p>
+			</div>
+
+			<!-- Filter Tabs -->
+			<div class="flex flex-wrap justify-center gap-2 mb-8">
+				<button type="button"
+					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-primary-600 bg-primary-600 text-white shadow-sm hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none dark:bg-primary-500 dark:border-primary-500 dark:text-white dark:hover:bg-primary-600 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600 active"
+					data-filter="all">
+					All Projects
+				</button>
+				<button type="button"
+					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+					data-filter="web">
+					Web
+				</button>
+				<button type="button"
+					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+					data-filter="mobile">
+					Mobile
+				</button>
+			</div>
+
+			<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				<% const projects = [
+					{
+						id: 1,
+						title: "Permintaan Aktif Kuliah",
+						shortDesc: "Aplikasi berbasis web untuk permohonan surat aktif kuliah.",
+						fullDesc: "Aplikasi berbasis web ini dirancang untuk memperlancar proses permohonan surat aktif kuliah resmi yang biasa digunakan mahasiswa untuk keperluan administrasi. Sistem ini mengintegrasikan verifikasi kode QR, memungkinkan administrator dan pihak eksternal untuk memverifikasi keaslian surat yang dikeluarkan.",
+						images: [
+							"/image/1/Mockup.png",
+							"/image/1/SAK1.jpg",
+							"/image/1/login.jpg",
+							"/image/1/home.jpg",
+							"/image/1/dashboard.jpg", 
+							"/image/1/layanan.jpg",
+							"/image/1/layanan_form.jpg",
+							"/image/1/riwayat.jpg",
+							"/image/1/riwayat_detail.jpg"
+						],
+						techStack: ["Express.js", "MySQL", "Tailwind", "Node.js", "EJS", "Preline"],
+						features: [
+							"Permintaan Surat: Mahasiswa dapat mengajukan surat aktif kuliah",
+							"Pembuatan Surat PDF: Surat otomatis dibuat berdasarkan data mahasiswa", 
+							"Verifikasi QR: Administrator dan pihak eksternal dapat memindai kode QR untuk validasi",
+							"Manajemen Surat: Administrator dapat menyetujui, menolak, dan mengelola surat"
+						],
+						category: "web"
+					},
+					{
+						id: 2,
+						title: "StunBy: Aplikasi Pelacakan Pertumbuhan Bayi Indonesia",
+						shortDesc: "Aplikasi mobile komprehensif untuk memantau dan mencegah stunting pada anak-anak Indonesia.",
+						fullDesc: "StunBy bertujuan mengatasi masalah stunting di Indonesia yang mempengaruhi 21,5% anak di bawah lima tahun. Aplikasi ini menggunakan Machine Learning untuk pengukuran tubuh yang presisi, perkiraan pertumbuhan, dan deteksi stunting. Dilengkapi cloud computing untuk pemrosesan data real-time dan memberikan panduan nutrisi yang dipersonalisasi.",
+						images: ["/image/2/Mockup.png", "/image/2/stunby.png","/image/2/3.png","/image/2/4.png","/image/2/5.png","/image/2/6.png","/image/2/7.png","/image/2/8.png"],
+						techStack: ["Kotlin", "Express.js", "PostgreSQL", "TensorFlow", "Docker", "GCP", "Terraform"],
+						features: [
+							"Sistem deteksi stunting berbasis Machine Learning",
+							"Rekomendasi nutrisi otomatis",
+							"Pemantauan pertumbuhan real-time",
+							"Kalkulator nutrisi",
+							"Artikel edukasi",
+							"Pemrosesan data berbasis cloud"
+						],
+						category: "mobile"
+					},
+					{
+						id: 3,
+						title: "TangkapIn: Sistem Deteksi Senjata Otomatis",
+						shortDesc: "Sistem keamanan pintar yang otomatis mendeteksi senjata pada rekaman CCTV.",
+						fullDesc: "Aplikasi keamanan cerdas yang menggunakan AI untuk mendeteksi senjata seperti pisau atau pistol dalam rekaman CCTV. Ketika senjata terdeteksi, sistem secara otomatis mengambil tangkapan layar sebagai bukti dan mengirimkan peringatan real-time ke pihak berwenang, meningkatkan waktu respons keamanan dan penanganan ancaman.",
+						images: ["/image/3/Mockup.png", "/image/3/1.png", "/image/3/2.png", "/image/3/3.png"],
+						techStack: ["Kotlin Native", "TensorFlow", "IP-Cam API", "PostgreSQL", "OpenCV", "Express.js"],
+						features: [
+							"Deteksi senjata otomatis menggunakan AI",
+							"Pengambilan tangkapan layar dan penyimpanan bukti",
+							"Notifikasi real-time ke polisi atau petugas keamanan",
+							"Analisis ancaman dan riwayat pelaporan",
+							"Integrasi dan manajemen kamera IP"
+						],
+						category: "mobile"
+					},
+					{
+						id: 4,
+						title: "Kilangan Tebu: E-Commerce Platform",
+						shortDesc: "Platform e-commerce untuk penjualan produk lokal Kilangan Tebu.",
+						fullDesc: "Kilangan Tebu adalah platform e-commerce yang memungkinkan petani lokal menjual produk tebu secara online. Sistem ini memfasilitasi transaksi, pengiriman, dan pembayaran secara digital, memperluas jangkauan pasar dan meningkatkan pendapatan petani. Dilengkapi dengan dashboard admin untuk manajemen produk dan pengguna.",
+						images: ["/image/4/mockup.png", "/image/4/preview.png", "/image/4/1.png", "/image/4/2.png", "/image/4/3.png", "/image/4/4.png", "/image/4/5.png", "/image/4/6.png", "/image/4/7.png", "/image/4/8.png", "/image/4/9.png", "/image/4/10.png", "/image/4/11.png", "/image/4/12.png", "/image/4/13.png", "/image/4/14.png"],
+						techStack: ["JavaScript", "EJS", "Preline", "RajaOngkir API", "Express.js", "MySQL","Midtrans"],
+						features: [
+							"Katalog produk dengan deskripsi dan harga",
+							"Keranjang belanja dan proses checkout",
+							"Integrasi RajaOngkir untuk estimasi pengiriman",
+							"Metode pembayaran digital dengan Midtrans",
+							"Manajemen pesanan dan riwayat transaksi",
+							"Dashboard admin untuk manajemen produk dan pengguna",
+							"Integrasi RajaOngkir untuk estimasi pengiriman",
+						],
+						category: "web",
+
+					},
+					{
+						id: 5,
+						title: "Sistem Pendaftaran Magang Bank Nagari",
+						shortDesc: "Sistem manajemen magang komprehensif untuk kantor pusat Bank Nagari.",
+						fullDesc: "Dikembangkan selama magang kami di Divisi Teknologi dan Digitalisasi Bank Nagari, sistem ini menyederhanakan seluruh proses pendaftaran magang dari registrasi hingga selesai. Platform ini memiliki modul khusus untuk pelamar, administrator, dan kepala departemen untuk mengelola aplikasi, melacak kemajuan magang, dan menghasilkan laporan.",
+						images: ["/image/5/mockup.png", "/image/5/preview.png", "/image/5/1.png", "/image/5/2.png", "/image/5/3.png", "/image/5/4.png", "/image/5/5.png", "/image/5/6.png", "/image/5/7.png", "/image/5/8.png", "/image/5/9.png"],
+						techStack: ["React", "Vite", "Express.js", "Node.js", "PostgreSQL", "Tailwind CSS"],
+						features: [
+							"Pendaftaran dan aktivasi akun melalui email",
+							"Fitur melihat status periode magang aktif/tidak aktif",
+							"Pengisian formulir pengajuan magang",
+							"Persetujuan atau penolakan pengajuan oleh admin",
+							"Penerimaan atau penolakan penempatan magang",
+							"Verifikasi surat pernyataan peserta oleh admin",
+							"Penerbitan surat pengantar setelah verifikasi"
+						],
+						category: "web"
+					},
+					{
+						id: 6,
+						title: "Ruang Ease: Sistem Peminjaman Ruangan",
+						shortDesc: "Aplikasi peminjaman ruangan dengan fitur review dan manajemen reservasi.",
+						fullDesc: "Ruang Ease adalah aplikasi yang memudahkan pengguna dalam mencari dan meminjam ruangan sesuai kebutuhan. Pengguna dapat melihat daftar ruangan yang tersedia, melakukan peminjaman dengan jadwal tertentu, serta memberikan ulasan dan komentar pada ruangan yang telah digunakan. Sistem ini dirancang untuk memastikan manajemen ruangan yang lebih teratur dan efisien.",
+						images: [
+							"/image/6/Mockup.png",
+							"/image/6/1.png",
+							"/image/6/2.png",
+							"/image/6/3.png",
+							"/image/6/4.png",
+							"/image/6/5.png",
+							"/image/6/6.png",
+							"/image/6/7.png",
+						],
+						techStack: [
+							"Jetpack Compose",
+							"Express.js",
+							"MySQL",
+							"Pusher",
+							"Retrofit",
+						],
+						features: [
+							"Peminjaman ruangan berdasarkan jadwal",
+							"Melihat ketersediaan ruangan secara real-time",
+							"Memberikan review dan komentar pada ruangan",
+							"Notifikasi peminjaman dan pengingat",
+							"Riwayat peminjaman dan manajemen reservasi"
+						],
+						category: "mobile"
+					}
+				]; %>
+
+					<% projects.forEach(project=> { %>
+						<div class="project-card group relative aspect-square bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7] transition-all duration-500 hover:shadow-lg hover:-translate-y-2 cursor-pointer opacity-100 transform scale-100"
+							data-category="<%= project.category %>" data-hs-overlay="#project-modal-<%= project.id %>">
+							<div class="h-full w-full overflow-hidden rounded-xl">
+								<img src="<%= project.images[0] %>" alt="<%= project.title %>"
+									class="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-110"
+									onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=Image+Not+Found';">
+							</div>
+							<div
+								class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex flex-col justify-end p-6">
+								<h3
+									class="text-xl font-semibold text-white transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
+									<%= project.title %>
+								</h3>
+								<p
+									class="text-white/90 mt-2 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+									<%= project.shortDesc %>
+								</p>
+								<div
+									class="mt-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300 delay-150">
+									<span
+										class="py-1.5 px-3 inline-flex items-center gap-x-1.5 text-xs font-medium rounded-full bg-white/20 text-white">
+										View Details
+										<svg class="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg"
+											width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+											stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="m9 18 6-6-6-6" />
+										</svg>
+									</span>
+								</div>
+							</div>
+						</div>
+					<% }); %>
+			</div>
+		</div>
+	</section>
+
+
+
+	<!-- Project Modals -->
+	<% projects.forEach(project=> { %>
+		<div id="project-modal-<%= project.id %>" class="modal">
+			<div class="modal-content">
+				<div class="p-4 sm:p-5">
+					<div class="flex justify-between items-center gap-x-2 mb-4">
+						<h3 class="text-xl font-bold text-gray-800 dark:text-white">
+							<%= project.title %>
+						</h3>
+						<button type="button"
+							class="close-modal flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+							<span class="sr-only">Close</span>
+							<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+								viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								stroke-linecap="round" stroke-linejoin="round">
+								<path d="M18 6 6 18" />
+								<path d="m6 6 12 12" />
+							</svg>
+						</button>
+					</div>
+
+					<!-- Project Images Carousel -->
+					<div class="relative mb-5">
+						<div class="carousel" data-project-id="<%= project.id %>">
+							<div class="carousel-container">
+								<% project.images.forEach((image, index)=> { %>
+									<% if (index> 0) { %>
+										<div class="carousel-slide">
+											<img src="<%= image %>" alt="Project Image <%= index + 1 %>" loading="lazy"
+												onerror="this.onerror=null; this.src='https://placehold.co/800x400?text=Image+Not+Found';">
+										</div>
+										<% } %>
+											<% }); %>
+							</div>
+
+							<!-- Carousel Controls -->
+							<div class="carousel-prev">
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24"
+									height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									stroke-linecap="round" stroke-linejoin="round">
+									<path d="m15 18-6-6 6-6" />
+								</svg>
+							</div>
+							<div class="carousel-next">
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24"
+									height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									stroke-linecap="round" stroke-linejoin="round">
+									<path d="m9 18 6-6-6-6" />
+								</svg>
+							</div>
+
+							<!-- Carousel Indicators -->
+							<div class="carousel-indicators">
+								<% project.images.forEach((_, index)=> { %>
+									<span class="carousel-indicator <%= index === 0 ? 'active' : '' %>"
+										data-slide-index="<%= index %>"></span>
+									<% }); %>
+							</div>
+						</div>
+					</div>
+
+					<!-- Project Description -->
+					<div class="mt-5 space-y-5">
+						<div>
+							<h4 class="text-lg font-semibold text-gray-800 dark:text-white">Description</h4>
+							<p class="mt-1 text-gray-600 dark:text-gray-400">
+								<%= project.fullDesc %>
+							</p>
+						</div>
+
+						<!-- Tech Stack -->
+						<div>
+							<h4 class="text-lg font-semibold text-gray-800 dark:text-white">Tech Stack</h4>
+							<div class="mt-2 flex flex-wrap gap-2">
+								<% project.techStack.forEach(tech=> { %>
+									<span
+										class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+										<%= tech %>
+									</span>
+									<% }); %>
+							</div>
+						</div>
+
+						<!-- Features -->
+						<div>
+							<h4 class="text-lg font-semibold text-gray-800 dark:text-white">Key Features</h4>
+							<ul class="mt-2 space-y-1 list-disc list-inside text-gray-600 dark:text-gray-400">
+								<% project.features.forEach(feature=> { %>
+									<li>
+										<%= feature %>
+									</li>
+									<% }); %>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<% }); %>
+
+			<section id="contact" class="py-16 bg-gray-50 dark:bg-slate-900">
+				<div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+					<div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
+						<h2 class="text-3xl font-bold text-gray-800 dark:text-white">Get In Touch</h2>
+						<p class="mt-4 text-gray-600 dark:text-gray-300">Connect with me on these platforms</p>
+					</div>
+
+					<div class="grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-3xl mx-auto">
+						<!-- WhatsApp -->
+						<a href="https://wa.me/6285951611341" target="_blank" class="flex flex-col items-center transition-transform hover:scale-110">
+							<div class="inline-flex justify-center items-center size-16 rounded-full bg-green-100 dark:bg-green-900 mb-4 shadow-sm">
+								<i class="fa-brands fa-whatsapp text-3xl text-green-600 dark:text-green-400"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-800 dark:text-white">WhatsApp</h3>
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Direct Message</p>
+						</a>
+
+						<!-- Instagram -->
+						<a href="https://www.instagram.com/nopallse" target="_blank" class="flex flex-col items-center transition-transform hover:scale-110">
+							<div class="inline-flex justify-center items-center size-16 rounded-full bg-purple-100 dark:bg-purple-900 mb-4 shadow-sm">
+								<i class="fa-brands fa-instagram text-3xl text-purple-600 dark:text-purple-400"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-800 dark:text-white">Instagram</h3>
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">@nopallse</p>
+						</a>
+
+						<!-- GitHub -->
+						<a href="https://github.com/Nopallse" target="_blank" class="flex flex-col items-center transition-transform hover:scale-110">
+							<div class="inline-flex justify-center items-center size-16 rounded-full bg-gray-100 dark:bg-gray-700 mb-4 shadow-sm">
+								<i class="fa-brands fa-github text-3xl text-gray-800 dark:text-gray-300"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-800 dark:text-white">GitHub</h3>
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Nopallse</p>
+						</a>
+
+						<!-- LinkedIn -->
+						<a href="https://www.linkedin.com/in/naaufaal" target="_blank" class="flex flex-col items-center transition-transform hover:scale-110">
+							<div class="inline-flex justify-center items-center size-16 rounded-full bg-blue-100 dark:bg-blue-900 mb-4 shadow-sm">
+								<i class="fa-brands fa-linkedin text-3xl text-blue-600 dark:text-blue-400"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-800 dark:text-white">LinkedIn</h3>
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">naaufaal</p>
+						</a>
+					</div>
+
+					<div class="mt-12 max-w-3xl mx-auto text-center">
+						<p class="text-gray-600 dark:text-gray-300">
+							I'm currently open for freelance work and collaboration opportunities.
+							<br>Feel free to connect with me on any of these platforms!
+						</p>
+						<div class="mt-6">
+							<a href="mailto:noppal.901@gmail.com" class="inline-flex items-center gap-x-2 bg-primary-600 border border-transparent text-white text-sm font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white py-3 px-6 dark:focus:ring-offset-gray-800 hover:bg-primary-700 transition-colors">
+								Email Me
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+									<path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path>
+									<path d="M3.29 7L12 12l8.71-5"></path>
+									<line x1="12" y1="22" x2="12" y2="12"></line>
+								</svg>
+							</a>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<footer class="bg-white border-t border-gray-200 dark:bg-slate-900 dark:border-gray-700">
+				<div class="max-w-[85rem] py-10 px-4 sm:px-6 lg:px-8 mx-auto">
+					<div class="grid grid-cols-1 md:grid-cols-3 items-center gap-5 text-center">
+						<div>
+							<a class="flex-none text-xl font-semibold dark:text-white" href="#"
+								aria-label="Brand">nopallse.tech</a>
+						</div>
+
+						<ul class="text-center">
+							<li
+								class="inline-block relative pe-8 last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-3 before:-translate-y-1/2 before:content-['/'] before:text-gray-300 dark:before:text-gray-600">
+								<a class="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-500 dark:hover:text-gray-200"
+									href="#home">Home</a>
+							</li>
+							<li
+								class="inline-block relative pe-8 last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-3 before:-translate-y-1/2 before:content-['/'] before:text-gray-300 dark:before:text-gray-600">
+								<a class="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-500 dark:hover:text-gray-200"
+									href="#about">About</a>
+							</li>
+							<li
+								class="inline-block relative pe-8 last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-3 before:-translate-y-1/2 before:content-['/'] before:text-gray-300 dark:before:text-gray-600">
+								<a class="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-500 dark:hover:text-gray-200"
+									href="#projects">Projects</a>
+							</li>
+							<li
+								class="inline-block relative pe-8 last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-3 before:-translate-y-1/2 before:content-['/'] before:text-gray-300 dark:before:text-gray-600">
+								<a class="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-500 dark:hover:text-gray-200"
+									href="#contact">Contact</a>
+							</li>
+						</ul>
+
+						<div class="md:text-end space-x-2">
+							<a class="inline-flex justify-center items-center size-8 text-center text-gray-500 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition dark:text-gray-500 dark:hover:text-gray-200 dark:hover:bg-gray-800 dark:focus:ring-offset-slate-900"
+								href="https://www.instagram.com/nopallse">
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="16"
+									height="16" fill="currentColor" viewBox="0 0 16 16">
+									<path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
+								</svg>
+							</a>
+							<a class="inline-flex justify-center items-center size-8 text-center text-gray-500 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition dark:text-gray-500 dark:hover:text-gray-200 dark:hover:bg-gray-800 dark:focus:ring-offset-slate-900"
+								href="https://github.com/Nopallse">
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="16" <svg
+									class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="16"
+									height="16" fill="currentColor" viewBox="0 0 16 16">
+									<path
+										d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+								</svg>
+							</a>
+							<a class="inline-flex justify-center items-center size-8 text-center text-gray-500 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition dark:text-gray-500 dark:hover:text-gray-200 dark:hover:bg-gray-800 dark:focus:ring-offset-slate-900"
+								href="https://www.linkedin.com/in/naaufaal">
+								<svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="16"
+									height="16" fill="currentColor" viewBox="0 0 16 16">
+									<path
+										d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+								</svg>
+							</a>
+						</div>
+					</div>
+
+					<div class="mt-5 sm:mt-12 text-center">
+						<p class="text-sm text-gray-500">© <span id="copyright-year">2025</span> nopallse.tech. All
+							rights reserved.</p>
+					</div>
+				</div>
+			</footer>
+
+			<script src="https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.js"></script>
+
+
+			<script>
+				document.addEventListener('DOMContentLoaded', function () {
+					// Simple modal handling without dependencies
+					function openModal(modalId) {
+						const modal = document.querySelector(modalId);
+						if (!modal) return;
+
+						// Show modal
+						modal.classList.add('active');
+
+						// Prevent scrolling on body
+						document.body.style.overflow = 'hidden';
+
+						// Initialize carousel if present
+						const carousel = modal.querySelector('.carousel');
+						if (carousel) {
+							initCarousel(carousel);
+						}
+					}
+
+					function closeModal(modal) {
+						if (!modal) return;
+
+						// Hide modal
+						modal.classList.remove('active');
+
+						// Get modal ID and find corresponding backdrop
+						const modalId = modal.id;
+						const backdrop = document.getElementById(modalId + '-backdrop');
+						if (backdrop) {
+							backdrop.classList.add('hidden');
+							backdrop.classList.remove('flex');
+						}
+
+						// Re-enable scrolling
+						document.body.style.overflow = '';
+
+						// Add a small delay to ensure modal is fully closed before allowing new interactions
+						setTimeout(() => {
+							modal.style.pointerEvents = 'none';
+							setTimeout(() => {
+								modal.style.pointerEvents = '';
+							}, 100);
+						}, 300);
+					}
+
+					// Project card click handler - Open modal
+					document.querySelectorAll('.project-card').forEach(function (card) {
+						card.addEventListener('click', function () {
+							const modalId = this.getAttribute('data-hs-overlay');
+							openModal(modalId);
+						});
+					});
+
+					// Close modal when clicking the close button
+					document.querySelectorAll('.close-modal').forEach(function (closeBtn) {
+						closeBtn.addEventListener('click', function (e) {
+							e.stopPropagation(); // Prevent event bubbling
+							const modal = this.closest('.modal');
+							closeModal(modal);
+						});
+					});
+
+					// Close modal when clicking outside content
+					document.querySelectorAll('.modal').forEach(function (modal) {
+						modal.addEventListener('click', function (e) {
+							if (e.target === modal) {
+								closeModal(modal);
+							}
+						});
+					});
+
+					// Close modal with escape key
+					document.addEventListener('keydown', function (e) {
+						if (e.key === 'Escape') {
+							const activeModal = document.querySelector('.modal.active');
+							if (activeModal) {
+								closeModal(activeModal);
+							}
+						}
+					});
+
+					// Project filter functionality - Keep your existing code
+					const filterButtons = document.querySelectorAll('[data-filter]');
+					const projectCards = document.querySelectorAll('.project-card');
+
+					filterButtons.forEach(button => {
+						button.addEventListener('click', () => {
+							// Remove active class from all buttons
+							filterButtons.forEach(btn => btn.classList.remove('bg-primary-600', 'border-primary-600', 'text-white'));
+							filterButtons.forEach(btn => btn.classList.add('bg-white', 'border-gray-200', 'text-gray-800', 'dark:bg-slate-900', 'dark:border-gray-700', 'dark:text-white'));
+
+							// Add active class to clicked button
+							button.classList.remove('bg-white', 'border-gray-200', 'text-gray-800', 'dark:bg-slate-900', 'dark:border-gray-700', 'dark:text-white');
+							button.classList.add('bg-primary-600', 'border-primary-600', 'text-white');
+
+							const filter = button.getAttribute('data-filter');
+
+							projectCards.forEach(card => {
+								const category = card.getAttribute('data-category');
+
+								if (filter === 'all' || filter === category) {
+									card.classList.remove('hidden-card');
+									card.classList.add('visible-card');
+								} else {
+									card.classList.add('hidden-card');
+									card.classList.remove('visible-card');
+								}
+							});
+						});
+					});
+
+					// Initialize carousel functionality
+					function initCarousel(carousel) {
+						if (!carousel) return;
+
+						const container = carousel.querySelector('.carousel-container');
+						const slides = carousel.querySelectorAll('.carousel-slide');
+						const indicators = carousel.querySelectorAll('.carousel-indicator');
+						const prevBtn = carousel.querySelector('.carousel-prev');
+						const nextBtn = carousel.querySelector('.carousel-next');
+						let currentIndex = 0;
+						const totalSlides = slides.length;
+
+						// Reset to first slide and update
+						currentIndex = 0;
+						updateCarousel();
+
+						// Prev button click
+						if (prevBtn) {
+							prevBtn.addEventListener('click', function (e) {
+								e.preventDefault();
+								e.stopPropagation();
+								currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+								updateCarousel();
+							});
+						}
+
+						// Next button click
+						if (nextBtn) {
+							nextBtn.addEventListener('click', function (e) {
+								e.preventDefault();
+								e.stopPropagation();
+								currentIndex = (currentIndex + 1) % totalSlides;
+								updateCarousel();
+							});
+						}
+
+						// Indicator click
+						indicators.forEach((indicator, index) => {
+							indicator.addEventListener('click', function (e) {
+								e.preventDefault();
+								e.stopPropagation();
+								currentIndex = index;
+								updateCarousel();
+							});
+						});
+
+						// Touch support for swiping
+						let touchStartX = 0;
+						let touchEndX = 0;
+
+						carousel.addEventListener('touchstart', function (e) {
+							touchStartX = e.changedTouches[0].screenX;
+						}, { passive: true });
+
+						carousel.addEventListener('touchend', function (e) {
+							touchEndX = e.changedTouches[0].screenX;
+							handleSwipe();
+						}, { passive: true });
+
+						function handleSwipe() {
+							const swipeThreshold = 50;
+							if (touchStartX - touchEndX > swipeThreshold) {
+								// Swipe left - next slide
+								currentIndex = (currentIndex + 1) % totalSlides;
+								updateCarousel();
+							} else if (touchEndX - touchStartX > swipeThreshold) {
+								// Swipe right - previous slide
+								currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+								updateCarousel();
+							}
+						}
+
+						function updateCarousel() {
+							if (!container) return;
+
+							// Update slide position
+							container.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+							// Update indicators
+							indicators.forEach((indicator, index) => {
+								if (index === currentIndex) {
+									indicator.classList.add('active');
+								} else {
+									indicator.classList.remove('active');
+								}
+							});
+						}
+
+						// Preload images
+						slides.forEach(slide => {
+							const img = slide.querySelector('img');
+							if (img) {
+								const newImg = new Image();
+								newImg.src = img.getAttribute('src');
+								newImg.onload = function () {
+									console.log('Image preloaded:', this.src);
+								};
+								newImg.onerror = function () {
+									console.error('Image failed to load:', this.src);
+									img.src = 'https://placehold.co/800x400?text=Image+Not+Found';
+								};
+							}
+						});
+					}
+
+				});
+			</script>
+
+</body>
