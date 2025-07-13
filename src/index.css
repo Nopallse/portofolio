@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+     :root {
+        --background: 220 14% 16%;
+        /* #252734 */
+        --foreground: 210 40% 98%;
+        --card: 220 14% 16%;
+        --card-foreground: 210 40% 98%;
+        --popover: 220 14% 16%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 220 14% 16%;
+        /* #252734 */
+        --primary-foreground: 210 40% 98%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 33 100% 50%;
+        /* #FF9000 */
+        --accent-foreground: 220 14% 16%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 33 100% 50%;
+        /* #FF9000 */
+        --radius: 0.5rem;
+        --sidebar-background: 220 14% 16%;
+        --sidebar-foreground: 210 40% 98%;
+        --sidebar-primary: 33 100% 50%;
+        --sidebar-primary-foreground: 220 14% 16%;
+        --sidebar-accent: 217.2 32.6% 17.5%;
+        --sidebar-accent-foreground: 210 40% 98%;
+        --sidebar-border: 217.2 32.6% 17.5%;
+        --sidebar-ring: 33 100% 50%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+@layer utilities {
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .bg-orange-gradient {
+        background: linear-gradient(135deg, #FF9000 0%, #FFA726 100%);
+    }
+    .shadow-orange-glow {
+        box-shadow: 0 8px 32px rgba(255, 144, 0, 0.3);
+    }
+    .border-white-transparent {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+
+/* Custom scrollbar */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: hsl(var(--primary));
+}
+
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent) / 0.8);
+}
