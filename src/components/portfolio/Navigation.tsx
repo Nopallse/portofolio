@@ -123,7 +123,7 @@ export const Navigation = ({ activeSection }: NavigationProps) => {
   };
 
   return (
-    <Navbar className="fixed top-4 left-4 right-4 z-50">
+    <Navbar className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-4xl w-[calc(100%-2rem)]">
       {/* Desktop Navigation */}
       <NavBody 
         className="backdrop-blur-sm border-b border-white-transparent rounded-2xl"
@@ -169,7 +169,7 @@ export const Navigation = ({ activeSection }: NavigationProps) => {
           boxShadow: '0 8px 32px rgba(255, 144, 0, 0.3)',
         }}
       >
-        <MobileNavHeader>
+        <MobileNavHeader className="px-4">
           <Link 
             to="/" 
             className={`text-xl font-bold hover:scale-105 transition-transform duration-300 ${

@@ -5,16 +5,19 @@ import { Card } from '@/components/ui/card';
 import { 
   LayoutDashboard, 
   FileText, 
-  Users, 
-  Settings, 
+  Award, 
+  Mail, 
+  GraduationCap, 
+  Briefcase, 
+  Code, 
   LogOut, 
   Menu, 
   X,
-  BarChart3,
   Shield,
   Plus
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { COLORS } from '@/utils/designTokens';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -45,27 +48,39 @@ const AdminLayout = ({ children, user }: AdminLayoutProps) => {
       active: location.pathname === '/admin/projects'
     },
     {
-      title: 'Analytics',
-      icon: BarChart3,
-      path: '/admin/analytics',
-      active: location.pathname === '/admin/analytics'
+      title: 'Certificates',
+      icon: Award,
+      path: '/admin/certificates',
+      active: location.pathname === '/admin/certificates'
     },
     {
-      title: 'Users',
-      icon: Users,
-      path: '/admin/users',
-      active: location.pathname === '/admin/users'
+      title: 'Contact Info',
+      icon: Mail,
+      path: '/admin/contact_info',
+      active: location.pathname === '/admin/contact_info'
     },
     {
-      title: 'Settings',
-      icon: Settings,
-      path: '/admin/settings',
-      active: location.pathname === '/admin/settings'
+      title: 'Education',
+      icon: GraduationCap,
+      path: '/admin/education',
+      active: location.pathname === '/admin/education'
+    },
+    {
+      title: 'Experience',
+      icon: Briefcase,
+      path: '/admin/experience',
+      active: location.pathname === '/admin/experience'
+    },
+    {
+      title: 'Skills',
+      icon: Code,
+      path: '/admin/skills',
+      active: location.pathname === '/admin/skills'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-primary text-white">
+    <div className="min-h-screen text-white" style={{ backgroundColor: COLORS.primary }}>
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
@@ -105,7 +120,7 @@ const AdminLayout = ({ children, user }: AdminLayoutProps) => {
         <div className="p-6 border-b border-secondary/20">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-accent" />
+              <Shield className="w-5 h-5 text-accent" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">
@@ -157,44 +172,12 @@ const AdminLayout = ({ children, user }: AdminLayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="lg:ml-64 bg-gray-900">
+      <div className="lg:ml-64" style={{ backgroundColor: COLORS.gray[900] }}>
         {/* Top Header */}
-        <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700/50 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden text-gray-400 hover:text-white"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-              <div>
-                <h2 className="text-xl font-semibold text-white">
-                  {menuItems.find(item => item.active)?.title || 'Dashboard'}
-                </h2>
-                <p className="text-sm text-gray-400">
-                  Welcome back, {user?.email || 'Administrator'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-accent text-accent hover:bg-accent hover:text-primary"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Quick Action
-              </Button>
-            </div>
-          </div>
-        </header>
+        
 
         {/* Page Content */}
-        <main className="p-6 bg-gray-900 min-h-screen">
+        <main className="p-6 min-h-screen" style={{ backgroundColor: COLORS.gray[900] }}>
           {children}
         </main>
       </div>

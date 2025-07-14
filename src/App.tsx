@@ -15,6 +15,10 @@ import AdminProjects from "./pages/admin/AdminProjects";
 import AddProject from "./pages/admin/AddProject";
 import EditProject from "./pages/admin/EditProject";
 import NotFound from "./pages/NotFound";
+import AdminCertificates from "./pages/admin/AdminCertificates";
+import AdminContactInfo from "./pages/admin/AdminContactInfo";
+import AdminEducation from "./pages/admin/AdminEducation";
+import AdminExperience from "./pages/admin/AdminExperience";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +41,10 @@ const App = () => (
           <Route path="/admin/projects" element={<AdminProjects />} />
           <Route path="/admin/projects/add" element={<AddProject />} />
           <Route path="/admin/projects/edit/:id" element={<EditProject />} />
+          <Route path="/admin/certificates" element={<AdminCertificates />} />
+          <Route path="/admin/contact_info" element={<AdminContactInfo />} />
+          <Route path="/admin/education" element={<AdminEducation />} />
+          <Route path="/admin/experience" element={<AdminExperience />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

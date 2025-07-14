@@ -36,62 +36,32 @@ const FloatingDockMobile = ({
   items: { title: string; icon: React.ReactNode; href: string }[];
   className?: string;
 }) => {
-  const [open, setOpen] = useState(false);
   return (
-    <div className={cn("relative block md:hidden", className)}>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            layoutId="nav"
-            className="absolute inset-x-0 bottom-full mb-2 flex flex-col gap-2"
-          >
-            {items.map((item, idx) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  y: 10,
-                  transition: {
-                    delay: idx * 0.05,
-                  },
-                }}
-                transition={{ delay: (items.length - 1 - idx) * 0.05 }}
-              >
-                                  <a
-                    href={item.href}
-                    key={item.title}
-                    className="flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{
-                      background: `linear-gradient(135deg, ${COLORS.accent.primary} 0%, ${COLORS.accent.secondary} 100%)`,
-                      boxShadow: '0 4px 16px rgba(255, 144, 0, 0.3)',
-                    }}
-                  >
-                    <div className="h-4 w-4" style={{ color: COLORS.black }}>{item.icon}</div>
-                  </a>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex h-10 w-10 items-center justify-center rounded-full"
-        style={{
-          background: `linear-gradient(135deg, ${COLORS.accent.primary} 0%, ${COLORS.accent.secondary} 100%)`,
-          boxShadow: '0 4px 16px rgba(255, 144, 0, 0.3)',
-        }}
-      >
-        <IconLayoutNavbarCollapse 
-          className="h-5 w-5" 
-          style={{ color: COLORS.black }}
-        />
-      </button>
-    </div>
+    <motion.div
+      className={cn(
+        "block md:hidden flex flex-row items-end justify-center h-16 mx-auto w-fit gap-4 rounded-2xl px-4 pb-3",
+        className,
+      )}
+      style={{
+        background: COLORS.secondary,
+        border: `1px solid ${COLORS.gray[700]}`,
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+      }}
+    >
+      {items.map((item) => (
+        <a
+          key={item.title}
+          href={item.href}
+          className="flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 hover:scale-110"
+          style={{
+            background: `linear-gradient(135deg, ${COLORS.accent.primary} 0%, ${COLORS.accent.secondary} 100%)`,
+            boxShadow: '0 4px 16px rgba(255, 144, 0, 0.3)',
+          }}
+        >
+          <div className="h-4 w-4" style={{ color: COLORS.black }}>{item.icon}</div>
+        </a>
+      ))}
+    </motion.div>
   );
 };
  

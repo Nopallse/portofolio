@@ -54,6 +54,7 @@ export type Database = {
           location: string | null
           phone: string | null
           portfolio: string | null
+          photo: string | null
           updated_at: string
         }
         Insert: {
@@ -65,6 +66,7 @@ export type Database = {
           location?: string | null
           phone?: string | null
           portfolio?: string | null
+          photo: string | null
           updated_at?: string
         }
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           location?: string | null
           phone?: string | null
           portfolio?: string | null
+          photo: string | null
           updated_at?: string
         }
         Relationships: []
