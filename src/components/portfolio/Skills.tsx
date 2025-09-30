@@ -29,10 +29,10 @@ export const Skills = () => {
   }
 
   const skillCategories = [
-    { title: 'Programming Languages', category: 'languages', icon: '💻' },
-    { title: 'Frameworks & Libraries', category: 'frameworks', icon: '🚀' },
-    { title: 'Tools & Platforms', category: 'tools', icon: '🛠️' },
-    { title: 'Databases', category: 'databases', icon: '🗄️' },
+    { title: 'Programming Languages', category: 'languages' },
+    { title: 'Frameworks & Libraries', category: 'frameworks' },
+    { title: 'Tools & Platforms', category: 'tools' },
+    { title: 'Databases', category: 'databases' },
   ];
 
   return (
