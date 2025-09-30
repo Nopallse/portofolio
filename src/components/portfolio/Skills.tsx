@@ -56,7 +56,6 @@ export const Skills = () => {
                 className="bg-primary/50 rounded-lg p-6 border border-gray-700 hover:border-accent/50 transition-all duration-300 transform hover:scale-105"
               >
                 <div className="flex items-center mb-4">
-                  <span className="text-2xl mr-3">{categoryInfo.icon}</span>
                   <h3 className="text-xl font-bold text-white">{categoryInfo.title}</h3>
                 </div>
                 
